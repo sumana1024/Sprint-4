@@ -1,65 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Cucumber" time="2.866" tests="5" skipped="0" failures="1" errors="0">
-<testcase classname="Testing the Authentication URL endpoints" name="Get Authentication Code is working" time="1.845">
-<system-out><![CDATA[
-Given Set RestAssured Base URL for the Authentication.......................passed
-And set request header "accept" as "application/json".......................passed
-And set parameter "username" in request body as "user1".....................passed
-And set parameter "password" in request body as "pass123"...................passed
-And get the response object for post response at endpoint "/login"..........passed
-Then check if status code is "200"..........................................passed
-Then set retrieved auth_code as environment variable "auth_code"............passed
-]]></system-out>
-</testcase>
-<testcase classname="Testing the Authentication URL endpoints" name="Get Authentication Token is working" time="0.199">
-<system-out><![CDATA[
-Given Set RestAssured Base URL for the Authentication.......................passed
-And set request header "accept" as "application/json".......................passed
-And get environment variable "auth_code" for request body...................passed
-And get the response object for post response at endpoint "/token"..........passed
-Then check if status code is "200"..........................................passed
-Then set retrieved access_token as environment variable "access_token"......passed
-]]></system-out>
-</testcase>
-<testcase classname="Testing the Authentication URL endpoints" name="Get Authentication Code for invalid password" time="0.26">
-<system-out><![CDATA[
-Given Set RestAssured Base URL for the Authentication.......................passed
-And set request header "accept" as "application/json".......................passed
-And set parameter "username" in request body as "user1".....................passed
-And set parameter "password" in request body as "pass1234"..................passed
-And get the response object for post response at endpoint "/login"..........passed
-Then check if status code is "401"..........................................passed
-]]></system-out>
-</testcase>
-<testcase classname="Testing the Authentication URL endpoints" name="Get Authentication Token for invalid auth code" time="0.203">
-<system-out><![CDATA[
-Given Set RestAssured Base URL for the Authentication.......................passed
-And set request header "accept" as "application/json".......................passed
-And set parameter "auth_code" in request body as "invalid"..................passed
-And get the response object for post response at endpoint "/token"..........passed
-Then check if status code is "400"..........................................passed
-]]></system-out>
-</testcase>
-<testcase classname="Verify Room List API Response" name="Verify room list API response and data" time="0.217">
-<failure type="java.lang.AssertionError" message="expected [application/xml] but found [application/json]">
-<![CDATA[java.lang.AssertionError: expected [application/xml] but found [application/json]
-	at org.testng.Assert.fail(Assert.java:111)
-	at org.testng.Assert.failNotEquals(Assert.java:1590)
-	at org.testng.Assert.assertEqualsImpl(Assert.java:150)
-	at org.testng.Assert.assertEquals(Assert.java:132)
-	at org.testng.Assert.assertEquals(Assert.java:656)
-	at org.testng.Assert.assertEquals(Assert.java:666)
-	at com.definitions.StepDef.the_response_header_should_be(StepDef.java:91)
-	at ✽.the response header "Content-Type" should be "application/json"(file:///C:/Users/manna/eclipse-workspace/Sprint_4/src/test/java/com/features/HotelRoomBooking.feature:7)
-]]>
-</failure>
+<testsuite name="Cucumber" time="3.505" tests="4" skipped="0" failures="0" errors="0">
+<testcase classname="Verify Hotel Room booking API Response" name="Verify room list API response and data" time="2.361">
 <system-out><![CDATA[
 Given I send a GET request to "/viewRoomList"...............................passed
 Then the response status code should be 200.................................passed
-And the response header "Content-Type" should be "application/json".........failed
-And the response should contain a non-empty room list.......................skipped
-And the room with ID 301 should have price 5000.0...........................skipped
-And all room types should be valid..........................................skipped
+And the response header "Content-Type" should be "application/json".........passed
+And the response should contain a non-empty room list.......................passed
+And the room with ID 301 should have price 5000.0...........................passed
+And all room types should be valid..........................................passed
+]]></system-out>
+</testcase>
+<testcase classname="Verify Hotel Room booking API Response" name="Validate room details response fields and values" time="0.195">
+<system-out><![CDATA[
+Given set request header "accept" as "application/json".....................passed
+When I send a GET request to /viewRoomById/101..............................passed
+Then the response status code should be 200.................................passed
+And the response should contain all expected keys...........................passed
+And the response field values should match the expected data................passed
+And the response should not contain invalid key "invalidField"..............passed
+And the room price should be greater than 0.................................passed
+And the data types of fields should be valid................................passed
+]]></system-out>
+</testcase>
+<testcase classname="Verify Hotel Room booking API Response" name="Update room price for an existing room" time="0.355">
+<system-out><![CDATA[
+Given set request header "Content-Type" as "application/x-www-form-urlencoded".passed
+And set request parameters in request body:.................................passed
+And get the response object for put response at endpoint "/updateRoomPrice".passed
+Then check if status code is "200"..........................................passed
+Given I send a GET request to "/viewRoomById/101"...........................passed
+Then verify room with ID 101 has price 1200.0...............................passed
+]]></system-out>
+</testcase>
+<testcase classname="Verify Hotel Room booking API Response" name="Delete an existing room by ID" time="0.293">
+<system-out><![CDATA[
+Given set request header "Accept" as "application/json".....................passed
+And set request parameters in request body:.................................passed
+And get the response object for delete response at endpoint "/deleteRoomById/302".passed
+Then check if status code is "200"..........................................passed
+Given I send a GET request to "/viewRoomList"...............................passed
+Then the room with ID 302 should not be present in the list.................passed
 ]]></system-out>
 </testcase>
 </testsuite>

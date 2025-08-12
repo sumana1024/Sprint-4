@@ -7,8 +7,12 @@ import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.*;
 
+import io.cucumber.datatable.DataTable;
+
 import java.util.List;
 import java.util.Map;
+
+import org.testng.Assert;
 
 import com.setup.Setup;
 
@@ -17,6 +21,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
@@ -205,4 +210,56 @@ public class StepDef {
         assertTrue(jsonData.get("roomType") instanceof String);
         assertTrue(jsonData.get("roomStatus") instanceof String);
         assertTrue(jsonData.get("roomPrice") instanceof Number);
-    }}
+    }
+
+    @And("set request parameters in request body:")
+    public void setRequestParametersInRequestBody(DataTable dataTable) {
+        Map<String, String> params = dataTable.asMap(String.class, String.class);
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            httpRequest = httpRequest.formParam(entry.getKey(), entry.getValue());
+        }
+    }
+
+    @And("get the response object for put response at endpoint {string}")
+    public void getTheResponseObjectForPutResponseAtEndpoint(String endpoint) {
+        response = httpRequest.put(endpoint);
+    }
+
+    @And("get the response object for delete response at endpoint {string}")
+    public void getTheResponseObjectForDeleteResponseAtEndpoint(String endpoint) {
+        response = httpRequest.delete(endpoint);
+    }
+
+    @Then("verify room with ID {int} has price {double}")
+    public void verify_room_with_id_has_price(int roomId, double expectedPrice) {
+        JsonPath jsonPath = response.jsonPath();
+        Object root = jsonPath.get("$");
+
+        if (root instanceof List) {
+            List<Map<String, Object>> rooms = jsonPath.getList("$");
+            boolean found = rooms.stream()
+                    .anyMatch(room -> ((Number) room.get("roomId")).intValue() == roomId
+                            && ((Number) room.get("roomPrice")).doubleValue() == expectedPrice);
+            assertTrue(found, "Room ID " + roomId + " with price " + expectedPrice + " not found in list.");
+        } else if (root instanceof Map) {
+            Map<String, Object> room = jsonPath.getMap("$");
+            assertEquals(roomId, ((Number) room.get("roomId")).intValue(), "Room ID mismatch.");
+            assertEquals(expectedPrice, ((Number) room.get("roomPrice")).doubleValue(), 0.001, "Price mismatch.");
+        } else {
+            fail("Unexpected JSON structure: " + root);
+        }
+    }
+    
+    @Then("the room with ID {int} should not be present in the list")
+    public void the_room_with_id_should_not_be_present_in_the_list(Integer roomId) {
+        List<Map<String, Object>> rooms = response.jsonPath().getList(""); // whole JSON array
+        boolean found = rooms.stream()
+                .anyMatch(room -> room.get("roomId").toString().equals(roomId.toString()));
+
+        Assert.assertFalse(found, "Room with ID " + roomId + " was found in the list, but it should have been deleted.");
+    }
+
+
+}
+
+
