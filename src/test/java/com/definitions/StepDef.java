@@ -25,7 +25,7 @@ public class StepDef {
     public static RequestSpecification httpRequest;
     public static Response response;
     public static Setup configFileReader = new Setup();
-
+  //Authentication code and access token verification
     @Given("Set RestAssured Base URL for the Authentication")
     public void setRestAssuredBaseURLForTheAuthentication() {
         RestAssured.baseURI = configFileReader.getAuthURL();
@@ -141,12 +141,6 @@ public class StepDef {
 
 }
   
-
-//    @When("I send a GET request to {string}")
-//    public void i_send_a_get_request_to(String endpoint) {
-//        RestAssured.baseURI = configFileReader.getBaseURL();
-//        response = httpRequest.get(endpoint);
-// 
     @When("I send a GET request to \\/viewRoomById\\/{int}")
     public void i_send_a_get_request_to_viewRoomById(int roomId) {
         // Set the base URI

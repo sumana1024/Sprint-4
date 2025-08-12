@@ -1,5 +1,5 @@
 @HotelRoomBooking
-Feature: Verify Room List API Response
+Feature: Verify Hotel Room booking API Response
 
   Scenario: Verify room list API response and data
     Given I send a GET request to "/viewRoomList"
